@@ -1,9 +1,8 @@
-from functools import reduce
 from six.moves import xrange
 from matplotlib import pyplot as plt
-from scipy import stats
 from Bio import SeqIO
 from Bio.Seq import Seq
+from Bio import SeqUtils
 from Bio.SeqRecord import SeqRecord
 from Bio.Alphabet import generic_dna
 from Bio.Alphabet import IUPAC
@@ -11,6 +10,14 @@ from Bio.Alphabet import IUPAC
 test_seq = 'AGCTCGCTCGCTGCGTATAAAATCGCATCGCGCGCAGC'
 dna_seq='ATGGTGCATCTGACTCCTGAGGAGAAGTCTGCCGTTACTGCCCTGTGGGGCAAGGTG'
 protein_seq = 'IRTNGTHMQPLLKLMKFQKFLLELFTLQKRKPEKGYNLPIISLNQ'
+
+
+def test_protein_translation():
+	print(Seq(dna_seq, generic_dna).translate())
+
+
+def test_estimate_mol_mass():
+	print(SeqUtils.molecular_weight(dna_seq))
 
 
 def test_bio():
@@ -33,7 +40,6 @@ def test_match_dna_profile():
 
 def test_gc_content():
 	gcResults = calc_gc_content(test_seq)
-	print(gcResults)
 	plt.hist(gcResults)
 	plt.show()
 
@@ -109,4 +115,3 @@ def relative_entropy_search(seq, win_size, is_protein=False):
 
 if __name__ == '__main__':
 	test_bio_input()
-	pass

@@ -1,0 +1,144 @@
+\documentclass{report}
+\usepackage{graphicx}
+\usepackage{mathtext}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8x]{inputenc}
+\usepackage{listings} % подгружаем языки
+\lstloadlanguages {[LaTeX]TeX,bash ,MetaPost,Fortran ,Perl ,C++,make,Python} % включаем кириллицу и добавляем кое−какие опции
+\lstset{language=[LaTeX]TeX, % выбираем язык по умолчанию 
+extendedchars=true , % включаем не латиницу 
+escapechar=|, % |«выпадаем» в LATEX|
+frame=tb , % рамка сверху и снизу 
+commentstyle=\itshape , % шрифт для комментариев
+ stringstyle=\bfseries} % шрифт для строк
+\usepackage{ucs}
+\usepackage[english,russian]{babel}
+
+\title{Домашнее задание 3}
+\author{Петухов Виктор}   
+\begin{document} 
+
+\begin{lstlisting}[language=Python, caption={Получение профайла}]
+def get_profile(sequences):
+	assert isinstance(sequences, list)
+
+	max_len = max([len(s) for s in sequences])
+	profile = []
+	for i in xrange(max_len):
+		dict = {}
+		sum = 0.0
+		for seq in sequences:
+			if i >= len(seq):
+				continue
+
+			if seq[i] in dict:
+				dict[seq[i]] += 1
+			else:
+				dict[seq[i]] = 1
+			sum += 1.0
+		profile.append({x[0]: x[1] / sum for x in dict.items()})
+
+	return profile
+
+if __name__ == '__main__':
+	profile = get_profile(['aa', 'a', 'bb'])
+	print(profile)
+\end{lstlisting}
+
+
+\begin{lstlisting}[language=Python, caption={Результат работы}]
+[{'S': 0.25, 'H': 0.5, 'T': 0.25}, {'R': 0.25, 'V': 0.25, 'F': 0.25, 'H': 0.25}, {'F': 0.25, 'S': 0.25, 'P': 0.5}, 
+ {'A': 0.5, 'S': 0.25, 'E': 0.25}, {'P': 0.5, 'L': 0.25, 'E': 0.25}, {'V': 0.75, 'P': 0.25}, 
+ {'V': 0.5, 'I': 0.25, 'E': 0.25}, {'A': 0.25, 'L': 0.25, 'I': 0.5}, {'I': 0.5, 'L': 0.25, 'T': 0.25}, 
+ {'I': 0.5, 'L': 0.5}, {'L': 0.25, 'I': 0.75}, {'C': 0.25, 'F': 0.25, 'I': 0.5}, {'V': 0.25, 'F': 0.25, 'G': 0.25, 'L': 0.25}, 
+ {'V': 0.25, 'C': 0.25, 'G': 0.25, 'M': 0.25}, {'A': 0.25, 'M': 0.25, 'V': 0.5}, {'A': 0.25, 'G': 0.25, 'M': 0.5}, 
+ {'V': 0.25, 'G': 0.25, 'A': 0.5}, {'V': 0.25, 'G': 0.5, 'I': 0.25}, {'V': 0.25, 'G': 0.25, 'I': 0.5}, 
+ {'G': 0.25, 'I': 0.5, 'T': 0.25}, {'G': 0.5, 'I': 0.25, 'T': 0.25}, {'L': 0.25, 'I': 0.25, 'T': 0.5}, 
+ {'L': 0.5, 'I': 0.5}, {'F': 0.25, 'I': 0.25, 'L': 0.5}, {'S': 0.25, 'L': 0.5, 'I': 0.25}, 
+ {'Y': 0.25, 'S': 0.25, 'L': 0.5}, {'Y': 0.25, 'G': 0.25, 'I': 0.5}, {'G': 0.25, 'I': 0.75}, 
+ {'R': 0.25, 'S': 0.75}, {'Y': 0.5, 'R': 0.25, 'L': 0.25}, {'G': 0.25, 'L': 0.5, 'T': 0.25}, 
+ {'I': 1.0}, {'K': 0.5, 'R': 0.5}, {'R': 0.5, 'L': 0.5}, 
+ {'L': 0.5, 'I': 0.5}, {'K': 0.5, 'I': 0.5}, {'K': 1.0}]
+\end{lstlisting}
+
+
+\begin{lstlisting}[language=Python, caption={Получение консенсуса}]
+def get_consensus(profile, probability_level):
+	assert isinstance(probability_level, float)
+	assert isinstance(profile, Iterable)
+
+	res = ''
+	for p in profile:
+		val = max(p.items(), key = lambda x: x[1])
+		res += val[0] if val[1] >= probability_level else 'X'
+
+	return res
+
+if __name__ == '__main__':
+	profile = get_profile(['aa', 'a', 'bb'])
+	consensus = get_consensus(profile, 0.55)
+	print(consensus)
+\end{lstlisting}
+
+
+\begin{lstlisting}[language=Python, caption={Результат работы}]
+HRPAPVVIIIIIVVVMAGIIGTLLLLIISYLIKRLKK
+\end{lstlisting}
+
+
+\begin{lstlisting}[language=Python, caption={Запуск clustal}]
+def run_clustal(sequences, fasta_filename, align_filename):
+	records = [SeqRecord(Seq(seq, IUPAC.protein), id='test%d' % i, description='my_desc')
+				for i, seq in enumerate(sequences)]
+
+	with open(fasta_filename, 'w') as file:
+		SeqIO.write(records, file, 'fasta')
+
+	cmdArgs = ['clustalw',
+	'-INFILE=' + fasta_filename,
+	'-OUTFILE=' + align_filename]
+	call(cmdArgs)
+
+if __name__ == '__main__':
+	run_clustal(['SRPAPVVLIILCVMAGVIGTILLISYGIRLLIK',
+				'TVPAPVVIILIILCVMAGIIGTILLLIISYTIRRLIK',
+				'HHFSEPEITLIIFGVMAGVIGTILLLIISYGIRLIK',
+				'HFSELVIALIIFGVMAGVIGTILFISYGSRLIK'],
+				'myfasta.fasta',
+				'res')
+\end{lstlisting}
+
+
+\begin{lstlisting}[language=Python, caption={Результат работы}]
+ CLUSTAL 2.1 Multiple Sequence Alignments
+
+
+Sequence format is Pearson
+Sequence 1: test0         33 aa
+Sequence 2: test1         37 aa
+Sequence 3: test2         36 aa
+Sequence 4: test3         33 aa
+Start of Pairwise alignments
+Aligning...
+
+Sequences (1:2) Aligned. Score:  72
+Sequences (1:3) Aligned. Score:  63
+Sequences (1:4) Aligned. Score:  57
+Sequences (2:3) Aligned. Score:  58
+Sequences (2:4) Aligned. Score:  42
+Sequences (3:4) Aligned. Score:  84
+Guide tree file created:   [myfasta.dnd]
+
+There are 3 groups
+Start of Multiple Alignment
+
+Aligning...
+Group 1: Sequences:   2      Score:627
+Group 2: Sequences:   2      Score:609
+Group 3: Sequences:   4      Score:547
+Alignment Score 603
+
+CLUSTAL-Alignment file created  [res]
+\end{lstlisting}
+
+\end{document}
