@@ -1,19 +1,20 @@
-# matrix = {
-# 	'A': {'B': 5, 'C': 4, 'D': 7, 'E': 6, 'F': 8},
-# 	'B': {'A': 5, 'C': 7, 'D': 10, 'E': 9, 'F': 11},
-# 	'C': {'A': 4, 'B': 7, 'D': 7, 'E': 6, 'F': 8},
-# 	'D': {'A': 7, 'B': 10, 'C': 7, 'E': 5, 'F': 9},
-# 	'E': {'A': 6, 'B': 9, 'C': 6, 'D': 5, 'F': 8},
-# 	'F': {'A': 8, 'B': 11, 'C': 8, 'D': 9, 'E': 8},
-# }
-
+import subprocess
+import os
 matrix = {
-	'K': {'L': 16, 'M': 16, 'N': 10},
-	'L': {'K': 16, 'M': 8, 'N': 8},
-	'M': {'K': 26, 'L': 8, 'N': 4},
-	'N': {'K': 10, 'L': 8, 'M': 4},
+	'A': {'B': 5, 'C': 4, 'D': 7, 'E': 6, 'F': 8},
+	'B': {'A': 5, 'C': 7, 'D': 10, 'E': 9, 'F': 11},
+	'C': {'A': 4, 'B': 7, 'D': 7, 'E': 6, 'F': 8},
+	'D': {'A': 7, 'B': 10, 'C': 7, 'E': 5, 'F': 9},
+	'E': {'A': 6, 'B': 9, 'C': 6, 'D': 5, 'F': 8},
+	'F': {'A': 8, 'B': 11, 'C': 8, 'D': 9, 'E': 8},
 }
 
+# matrix = {
+# 	'K': {'L': 16, 'M': 16, 'N': 10},
+# 	'L': {'K': 16, 'M': 8, 'N': 8},
+# 	'M': {'K': 26, 'L': 8, 'N': 4},
+# 	'N': {'K': 10, 'L': 8, 'M': 4},
+# }
 
 def get_min_keys(m):
 	min_dist = 100000000
@@ -94,5 +95,10 @@ def upgma():
 
 
 if __name__ == '__main__':
-	wpgma()
+	upgma()
 	print(list(matrix)[0])
+	with open('out.pt', 'w') as out:
+		out.write(list(matrix)[0])
+
+	os.chdir('/home/victor/biosoft/FigTree_v1.4.2/')
+	subprocess.call(['/home/victor/biosoft/FigTree_v1.4.2/bin/figtree', '/home/victor/StudyRepo/Python/Viterbi/out.pt'])
