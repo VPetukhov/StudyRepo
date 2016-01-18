@@ -1,41 +1,3 @@
-library(ppls)
-
-get_disp <- function(vec, step, conf_level = 0.99) {
-  left_border <- min(vec)
-  right_border <- max(vec)
-  answer = c()
-  norm = c()
-  
-  for (i in seq(from = left_border, to = right_border - step, by = step)) {
-    answer = c(answer, length(vec[vec >= i & vec < i + step]))
-    norm = c(norm, pnorm(i + step) - pnorm(i))
-  }
-  
-  answer <- normalize.vector(answer)
-  answer <- answer / sum(answer)
-  
-  print(answer)
-  
-  stat <- sum((answer - norm) ** 2 / norm)
-  s_val <- qchisq((1 + conf_level) / 2, df = length(answer) - 1)
-  
-  c(stat, s_val)
-}
-
-print_hypotesis <- function(seq, conf_level)
-{
-  m = mean(seq)
-  std_dev = sd(seq)
-  d_f = length(seq) - 1
-  
-  left_disp = d_f * std_dev ** 2 / qchisq((1 + conf_level) / 2, df = d_f)
-  right_disp = d_f * std_dev ** 2 / qchisq((1 - conf_level) / 2, df = d_f)
-  res = t.test(seq, conf.level = conf_level)
-
-  cat("Mean: ", m, "; interval: (", res$conf[1], " - ", res$conf[2], ")\n")
-  cat("Dispersion: ", std_dev ** 2, "; interval: (", left_disp, " - ", right_disp, ")\n")
-}
-
 sequence <- c(1.63, -2.47, 0.18, 1.14, -2.37, -0.94, 0.06, -1.05, -0.81, 0.03, -1.93, 0.41, -0.92,
               -0.16, -1.15, 0.56, 1.05, 0.41, -0.08, 1.23, -0.56, 0.67, 0.34, 1.05, -1.21, -0.31, 
               0.87, 2.2, -0.66, 0.74, -0.91, 2.72, 0.89, 0.6, 0.81, 2.36, 1.26, -0.92, -1.82, 0.09, 
@@ -45,8 +7,21 @@ sequence <- c(1.63, -2.47, 0.18, 1.14, -2.37, -0.94, 0.06, -1.05, -0.81, 0.03, -
               -2.55, 0.31, -2.02, 0.18, -0.79, -2.54, 0.97, -0.17, -2.15, -2.04, -0.48, 0.54, -0.27, 
               0.42, -1.7, 0.3, 0, 1.04, 0.85, 1.03, 0.4)
 
-s2 <- runif(1000, -3, 3)
+alpha <- 0.05
 
-get_disp(s2, 0.4)
+h = hist(sequence, breaks = 10, xlab = "Breaks")
+c_test = chisq.test(h$counts)
+if (c_test$p.value < alpha) {
+  cat("Sample is normal distributed, p-value: ", c_test$p.value, "\n")
+} else {
+  cat("There are no reason to belive that sample is normal distributed, p-value: ", c_test$p.value, "\n")
+}
 
+ks_sample = unique(sequence)
+ks_test = ks.test(ks_sample, 'pnorm', mean(sequence), sd(sequence), alternative = c("t"))
 
+if (ks_test$p.value > alpha) {
+  cat("Sample is normal distributed, p-value: ", ks_test$p.value, "\n")
+} else {
+  cat("There are no reason to belive that sample is normal distributed, p-value: ", ks_test$p.value, "\n")
+}
